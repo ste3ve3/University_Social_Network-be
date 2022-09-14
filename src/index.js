@@ -56,7 +56,7 @@ app.use("/", cors(corsOptions), googleRoute);
 app.use("/", cors(corsOptions), facebookRoute);
 app.use("/", cors(corsOptions), githubRoute);
 app.use("/", cors(corsOptions), socialMediaLoggedInUser);
-
+app.use('/images',express.static('src/images'))
 
 
 

@@ -6,6 +6,7 @@ const router = express.Router()
 
 router.post("/createUser", UserCreated.createNewUser)
 router.get("/getRegisteredUsers", UserCreated.getAllUsers)
+router.get("/verifyEmail", UserCreated.verifyEmail)
 
 
 export default router

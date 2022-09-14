@@ -62,6 +62,10 @@ const userSchema = new Schema({
         default: "user"
     },
 
+    emailToken: {
+        type: String
+    },
+
 
     // for third application
     userName: {
