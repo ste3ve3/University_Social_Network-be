@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import UserValidationSchema from "../middlewares/registerValidation.js"
 import nodemailer from "nodemailer"
 import crypto from "crypto"
+import sessionStorage from "node-sessionstorage"
 
 
 const createNewUser = async(request, response) =>{
@@ -37,16 +38,20 @@ const createNewUser = async(request, response) =>{
 
         const hashedRepeatPassword = await bcrypt.hash(request.body.repeatPassword, salt)
         
+        const newUser = new User()
 
-        await User.create({
-            firstName: request.body.firstName,
-            lastName: request.body.lastName,
-            email: request.body.email,
-            password: hashedPassword,
-            repeatPassword: hashedRepeatPassword,
-            emailToken: crypto.randomBytes(64).toString("hex"),
-            isVerified: false
-        })
+            newUser.firstName = request.body.firstName,
+            newUser.lastName = request.body.lastName,
+            newUser.email = request.body.email,
+            newUser.password = hashedPassword,
+            newUser.repeatPassword = hashedRepeatPassword,
+            newUser.emailToken = crypto.randomBytes(64).toString("hex"),
+            newUser.isVerified = false  
+
+
+        sessionStorage.setItem("user_email", request.body.email)
+        await newUser.save();
+
 
         const user = await User.findOne({email: request.body.email})
         // Send verification email to user
@@ -78,7 +83,7 @@ const createNewUser = async(request, response) =>{
             }
         })
 
-        response.status(201).json({"successMessage": `The new user "${request.body.email}" is created successfully, verification email is sent to your email account!`})
+        response.status(201).json({"successMessage": `The new user "${request.body.email}" is created successfully, complete your profile and verify your email!`})
     }
 
     catch(error){
@@ -94,13 +99,12 @@ const createNewUser = async(request, response) =>{
 const verifyEmail = async(request, response) =>{
     try{
         const token = request.query.token;
-        console.log(token)
         const myUser = await User.findOne({emailToken: token})
         if(myUser){
             // myUser.emailToken = null
             myUser.isVerified = true
             await myUser.save()
-            response.redirect(process.env.FAILURE_REDIRECT_URL)
+            response.redirect(process.env.EMAIL_VERIFIED_REDIRECT_URL)
         }
 
         else{
@@ -122,7 +126,7 @@ const getAllUsers = async(request, response) =>{
     try{
         const RegisterUsers = await User.find()
 
-        response.status(200).json({"Registered users": RegisterUsers})
+        response.status(200).json({"RegisteredUsers": RegisterUsers})
     }
 
     catch (error){
@@ -134,4 +138,122 @@ const getAllUsers = async(request, response) =>{
     }
 }
 
-export default {createNewUser, getAllUsers, verifyEmail}
+const updateUser1 = async(request, response) =>{
+    try{
+        const registeredEmail = sessionStorage.getItem("user_email")
+        const storedEmail = await User.findOne({email: registeredEmail})
+        
+        if(storedEmail){
+        storedEmail.faculty = request.body.faculty || storedEmail.faculty,
+        storedEmail.department = request.body.department || storedEmail.department,
+        storedEmail.regNumber = request.body.regNumber || storedEmail.regNumber,
+        storedEmail.yearOfStudy = request.body.yearOfStudy || storedEmail.yearOfStudy
+
+        const updatedUser = await storedEmail.save()
+
+        const newUser = {
+            faculty: updatedUser.faculty,
+            department: updatedUser.department,
+            regNumber: updatedUser.regNumber,   
+            yearOfStudy: updatedUser.yearOfStudy
+        }
+
+        response.status(200).json({
+            "message": "Student Info added successfully!",
+            "ourUpdatedUser": newUser
+        })
+
+    }
+    else{
+        response.status(400).json({
+            "message": "User not found!"
+        }) 
+    }
+    }
+
+    catch (error){
+        console.log(error);
+        response.status(500).json({
+            "status": "fail",
+            "message": error.message
+        })
+    }
+}
+
+const updateUser2 = async(request, response) =>{
+    try{
+        const registeredEmail = sessionStorage.getItem("user_email")
+        const storedEmail = await User.findOne({email: registeredEmail})
+        const transciptImage = request.file.filename;
+        const transcriptImages = `${request.protocol}://${request.get("host")}/transcriptImages/${transciptImage}`;
+        
+        if(storedEmail){
+        storedEmail.transcript = transcriptImages || storedEmail.transcript
+
+        const updatedUser = await storedEmail.save()
+
+        const newUser = {
+            transcript: updatedUser.transcript,
+        }
+
+        response.status(200).json({
+            "message": "Student transcript added successfully!",
+            "UpdatedUser": newUser
+        })
+
+    }
+    else{
+        response.status(400).json({
+            "message": "User not found!"
+        }) 
+    }
+    }
+
+    catch (error){
+        console.log(error);
+        response.status(500).json({
+            "status": "fail",
+            "message": error.message
+        })
+    }
+}
+
+const updateUser3 = async(request, response) =>{
+    try{
+        const registeredEmail = sessionStorage.getItem("user_email")
+        const storedEmail = await User.findOne({email: registeredEmail})
+        
+        if(storedEmail){
+        storedEmail.dateOfBirth = request.body.dateOfBirth || storedEmail.dateOfBirth,
+        storedEmail.phoneNumber = request.body.phoneNumber || storedEmail.phoneNumber
+
+        const updatedUser = await storedEmail.save()
+
+        const newUser = {
+            dateOfBirth: updatedUser.dateOfBirth,
+            phoneNumber: updatedUser.phoneNumber
+        }
+
+        response.status(200).json({
+            "message": "User Info added successfully!",
+            "UpdatedUser": newUser
+        })
+
+    }
+    else{
+        response.status(400).json({
+            "message": "User not found!"
+        }) 
+    }
+    }
+
+    catch (error){
+        console.log(error);
+        response.status(500).json({
+            "status": "fail",
+            "message": error.message
+        })
+    }
+}
+
+export default {createNewUser, getAllUsers, verifyEmail, updateUser1, updateUser2, updateUser3}

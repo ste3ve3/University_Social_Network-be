@@ -6,6 +6,26 @@ const userGoogleSchema = new Schema({
     email: {
         type: String, 
         required: true,
+    },
+
+    bio: {
+        type: String
+    },
+
+    profileFacebook: {
+        type: String
+    },
+
+    profileTwitter: {
+        type: String
+    },
+
+    profileLinkedin: {
+        type: String
+    },
+
+    profileInstagram:{
+        type: String
     }, 
 
     dateCreated: {

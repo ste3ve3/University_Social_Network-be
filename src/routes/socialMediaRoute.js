@@ -9,4 +9,6 @@ router.get("/socialMediaLoggedInUser", socialMediaDecodedController.socialMediaL
 
 router.get("/socialMediaLogoutUser", socialMediaDecodedController.socialMediaLogoutUser)
 
+router.put("/socialMediaUpdateUser", socialMediaDecodedController.socialMediaUpdateUser)
+
 export default router

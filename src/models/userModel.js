@@ -52,6 +52,34 @@ const userSchema = new Schema({
         required: true,
     },
 
+    faculty: {
+        type: String,
+    },
+
+    department: {
+        type: String,
+    },
+
+    regNumber: {
+        type: String,
+    },
+
+    yearOfStudy: {
+        type: String,
+    },
+
+    transcript: {
+        type: String,
+    },
+
+    dateOfBirth: {
+        type: String,
+    },
+
+    phoneNumber: {
+        type: Number,
+    },
+
     dateCreated: {
         type: Date,
         default: Date.now,

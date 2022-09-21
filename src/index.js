@@ -11,6 +11,7 @@ import googleRoute from "./routes/googleRoute.js";
 import facebookRoute from "./routes/facebookRoute.js";
 import githubRoute from "./routes/githubRoute.js";
 import loginRoute from "./routes/loginRoute.js";
+import blogRoute from "./routes/blogRoute.js";
 import passport from "passport";
 import expressSession from "express-session";
 import MemoryStore from "memorystore";
@@ -52,11 +53,14 @@ app.use(passport.session());
 app.use("/contact", cors(corsOptions), contactRoute);
 app.use("/register", cors(corsOptions), registerRoute);
 app.use("/login", cors(corsOptions), loginRoute);
+app.use("/", cors(corsOptions), blogRoute);
 app.use("/", cors(corsOptions), googleRoute);
 app.use("/", cors(corsOptions), facebookRoute);
 app.use("/", cors(corsOptions), githubRoute);
 app.use("/", cors(corsOptions), socialMediaLoggedInUser);
 app.use('/images',express.static('src/images'))
+app.use('/postImages',express.static('src/postImages'))
+app.use('/transcriptImages',express.static('src/transcriptImages'))
 
 
 

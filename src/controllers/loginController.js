@@ -2,7 +2,7 @@ import User from "../models/userModel.js"
 import bcrypt from "bcrypt"
 import Jwt from "jsonwebtoken"
 import nodemailer from "nodemailer"
-import crypto from "crypto"
+import newPasswordValidationSchema from "../middlewares/newPasswordValidation.js"
 
 
 const loginUser = async(request, response) =>{
@@ -148,18 +148,21 @@ const updateUser = async(request, response) =>{
                 }
 
                 if (ourLoggedInUser){
+                    
                         if (!request.file) {
                             ourLoggedInUser.firstName = request.body.firstName || ourLoggedInUser.firstName,
                             ourLoggedInUser.lastName = request.body.lastName || ourLoggedInUser.lastName,
                             ourLoggedInUser.email = request.body.email || ourLoggedInUser.email,
                             ourLoggedInUser.bio = request.body.bio || ourLoggedInUser.bio,
-                            ourLoggedInUser.profileFacebook = request.body.profileFacebook || ourLoggedInUser.profileFacebook,
-                            ourLoggedInUser.profileTwitter = request.body.profileTwitter || ourLoggedInUser.profileTwitter,
-                            ourLoggedInUser.profileLinkedin = request.body.profileLinkedin || ourLoggedInUser.profileLinkedin,
-                            ourLoggedInUser.profileInstagram = request.body.profileInstagram || ourLoggedInUser.profileInstagram
+                            ourLoggedInUser.faculty = request.body.faculty || ourLoggedInUser.faculty,
+                            ourLoggedInUser.department = request.body.department || ourLoggedInUser.department,
+                            ourLoggedInUser.regNumber = request.body.regNumber || ourLoggedInUser.regNumber,
+                            ourLoggedInUser.yearOfStudy = request.body.yearOfStudy || ourLoggedInUser.yearOfStudy,
+                            ourLoggedInUser.dateOfBirth = request.body.dateOfBirth || ourLoggedInUser.dateOfBirth,
+                            ourLoggedInUser.phoneNumber = request.body.phoneNumber || ourLoggedInUser.phoneNumber
                         }
 
-                        else {  
+                        else { 
                             ourLoggedInUser.imageLink = request.file.filename || ourLoggedInUser.imageLink
                         }
                         
@@ -176,10 +179,13 @@ const updateUser = async(request, response) =>{
                         email: updatedUser.email,
                         bio: updatedUser.bio,
                         imageLink: updatedUser.imageLink,
-                        profileFacebook: updatedUser.profileFacebook,
-                        profileTwitter: updatedUser.profileTwitter,
-                        profileLinkedin: updatedUser.profileLinkedin,   
-                        profileInstagram: updatedUser.profileInstagram
+                        faculty: updatedUser.faculty,
+                        department: updatedUser.department,
+                        regNumber: updatedUser.regNumber,   
+                        dateOfBirth: updatedUser.dateOfBirth,   
+                        phoneNumber: updatedUser.phoneNumber,   
+                        transcript: updatedUser.transcript,   
+                        yearOfStudy: updatedUser.yearOfStudy
                     }
 
                     if(request.body.profileFacebook == ""){
@@ -248,10 +254,8 @@ const forgotPassword = async(request, response) =>{
                "invalidEmail": "Please verify your email to continue"
            })
     
-        // const secret = process.env.JWT_SECRET + userEmail.password;
         const userResetToken = Jwt.sign({userEmail} , process.env.JWT_SECRET)
         response.header("auth_token", userResetToken)
-        console.log("databaseToken", userResetToken)
         const link = `http://localhost:5000/login/resetPassword/${userResetToken}`
 
         await userEmail.updateOne({
@@ -278,8 +282,8 @@ const forgotPassword = async(request, response) =>{
             subject: "University Social Network - Reset Password",
             html: `
             <div style="padding: 10px;">
-                <h3> <span style="color: #414A4C;">${userEmail.firstName} ${userEmail.lastName}</span> Thank you for registering on our website! </h3> 
-                <h4> Please verify your email to continue... </h4>
+                <h3> <span style="color: #414A4C;">${userEmail.firstName} ${userEmail.lastName}</span> I see you have forgot your password! </h3> 
+                <h4> Please click on reset password to continue... </h4>
                 <a style="border-radius: 5px; margin-bottom: 10px; text-decoration: none; color: white; padding: 10px; cursor: pointer; background: #414A4C;" 
                 href="http://localhost:5000/login/resetPassword?resetToken=${userResetToken}"> 
                 Reset Password </a>
@@ -294,13 +298,15 @@ const forgotPassword = async(request, response) =>{
             }
 
             else{
-                console.log("Verification Email is Sent to your gmail account!")  
+                console.log("Verification Email is Sent to your gmail account!")
+                response.status(200).json({
+                    "emailSuccess": "Email sent, check your account to reset your password",
+                    "resetToken": userResetToken
+                })  
             }
         })
 
-        response.status(200).json({
-            "emailSuccess": "Email Sent successfully"
-        })
+        
     }
 
     catch (error){
@@ -316,7 +322,6 @@ const forgotPassword = async(request, response) =>{
 const resetPassword = async(request, response) =>{
     try{
         const token = request.query.resetToken;
-        console.log("querryToken", token)
         const myUser = await User.findOne({resetToken: token})
         if(myUser){
             myUser.resetToken = null
@@ -325,7 +330,7 @@ const resetPassword = async(request, response) =>{
         }
 
         else{
-            console.log("Email not sent")
+            console.log("Password not reset")
         }
     }
 
@@ -339,6 +344,10 @@ const resetPassword = async(request, response) =>{
 }
 
 const newPassword = async(request, response) =>{
+    const {error} = newPasswordValidationSchema.validate(request.body)
+
+    if (error)
+        return response.status(400).json({"validationError": error.details[0].message})
     try{
 
         const token = request.header("auth_token")
@@ -354,20 +363,17 @@ const newPassword = async(request, response) =>{
             }
 
             else{
-
-            console.log(decodedToken)
-
-            const resetLoggedInUser = await User.findById(decodedToken.userEmail._id)
+        const resetLoggedInUser = await User.findById(decodedToken.userEmail._id)
 
         const salt = await bcrypt.genSalt()
 
-        const hashedPassword = await bcrypt.hash(request.body.password, salt)
+        const newHashedPassword = await bcrypt.hash(request.body.password, salt)
 
-        const hashedRepeatPassword = await bcrypt.hash(request.body.repeatPassword, salt)
+        const newHashedRepeatPassword = await bcrypt.hash(request.body.repeatPassword, salt)
 
         await resetLoggedInUser.updateOne({
-            password: hashedPassword,
-            repeatPassword: hashedRepeatPassword
+            password: newHashedPassword,
+            repeatPassword: newHashedRepeatPassword
          })
   
          response.status(200).json({
