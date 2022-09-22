@@ -28,6 +28,16 @@ const blogSchema = mongoose.Schema({
         required: true,
     },
 
+    testResult : {
+        type: 'string',
+        required: true,
+    },
+
+    faculty : {
+        type: 'string',
+        required: true,
+    },
+
     authorImage : {
         type: 'string',
         required: true,

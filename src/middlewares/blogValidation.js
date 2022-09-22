@@ -15,6 +15,10 @@ const articleValidation = joi.object ({
         "string.pattern.base": "The title can not include numbers and special characters",
         "string.empty": "The category field can not be empty"
     }),
+    faculty: joi.string().required().label("category").regex(/^[A-Za-z ]+$/).messages({
+        "string.pattern.base": "The title can not include numbers and special characters",
+        "string.empty": "The faculty field can not be empty"
+    }),
     authorImage: joi.string().label("author").messages({
         "string.empty": "Please add the author's picture"
     }),

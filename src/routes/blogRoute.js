@@ -31,6 +31,8 @@ const upload = multer({ storage: storage }).fields(
 router.route('/getAllPosts')
     .get(blogController.getPosts)
 
+router.route('/getAllResults')
+    .get(blogController.getAllResults)
 
 router.route('/getSinglePost/:id')
     .get(blogController.getPostsById)
@@ -38,19 +40,26 @@ router.route('/getSinglePost/:id')
 router.route('/getPostsByCategory/:category')
     .get(blogController.getPostsByCategory)
 
+router.route('/getPostsByFaculty/:faculty')
+    .get(blogController.getPostsByFaculty)
 
 router.route('/deletePost/:id')
  .delete(blogController.deletePostById)
+
+router.route('/deleteResult/:id')
+ .delete(blogController.deleteResultById)
  
 router.put(
     "/updatePost/:id", upload, 
     blogController.updatePostById
     )
- 
+
 router.post(
   "/createPost", upload, 
   blogController.createPost
   )
+
+router.post("/saveTestResult", blogController.saveTestResult)
 
 
 export default router;

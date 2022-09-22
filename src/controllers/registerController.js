@@ -138,6 +138,26 @@ const getAllUsers = async(request, response) =>{
     }
 }
 
+const assignUserRole = async(request, response) =>{
+    try{
+        const user = await User.findOne({_id: request.params.id});
+
+        user.role = request.body.role
+
+        await user.save();
+
+        response.status(200).json({ "successMessage": `"New role ${request.body.role} was assigned to user ${user.email} successfully!` })
+    }
+
+    catch (error){
+        console.log(error);
+        response.status(500).json({
+            "status": "fail",
+            "message": error.message
+        })
+    }
+}
+
 const updateUser1 = async(request, response) =>{
     try{
         const registeredEmail = sessionStorage.getItem("user_email")
@@ -256,4 +276,4 @@ const updateUser3 = async(request, response) =>{
     }
 }
 
-export default {createNewUser, getAllUsers, verifyEmail, updateUser1, updateUser2, updateUser3}
+export default {createNewUser, getAllUsers, verifyEmail, updateUser1, updateUser2, updateUser3, assignUserRole}

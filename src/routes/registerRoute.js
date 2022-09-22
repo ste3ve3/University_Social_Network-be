@@ -26,6 +26,7 @@ router.get("/getRegisteredUsers", UserCreated.getAllUsers)
 router.get("/verifyEmail", UserCreated.verifyEmail)
 router.put("/updateUser1", UserCreated.updateUser1)
 router.put("/updateUser3", UserCreated.updateUser3)
+router.put("/assignUserRole/:id", UserCreated.assignUserRole)
 router.put("/updateUser2", upload.single('transcript'), UserCreated.updateUser2)
 
 

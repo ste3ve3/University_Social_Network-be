@@ -1,5 +1,6 @@
 import BlogPost from '../models/blogModel.js';
 import  articleValidation  from '../middlewares/blogValidation.js';
+import testResultModel from "../models/resultsModel.js"
 
 
     const createPost = async (req, res)=>{
@@ -14,7 +15,7 @@ import  articleValidation  from '../middlewares/blogValidation.js';
             const postImages = `${req.protocol}://${req.get("host")}/postImages/${postImage}`;
             const authorImages = `${req.protocol}://${req.get("host")}/postImages/${authorImage}`;
             
-            const newBlogPost = new BlogPost() 
+            const newBlogPost = new BlogPost()  
 
                 newBlogPost.title = req.body.title,
                 newBlogPost.body = req.body.body,
@@ -22,6 +23,7 @@ import  articleValidation  from '../middlewares/blogValidation.js';
                 newBlogPost.imgLink = postImages,
                 newBlogPost.authorImage = authorImages
                 newBlogPost.category = req.body.category
+                newBlogPost.faculty = req.body.faculty
 
         try{
             await newBlogPost.save();
@@ -53,6 +55,7 @@ import  articleValidation  from '../middlewares/blogValidation.js';
                 blog.body = req.body.body || blog.body,
                 blog.authorName = req.body.authorName || blog.authorName,
                 blog.category = req.body.category || blog.category
+                blog.category = req.body.faculty || blog.faculty
                 }
 
                 else{
@@ -180,5 +183,88 @@ import  articleValidation  from '../middlewares/blogValidation.js';
     }
 
 
+    const getPostsByFaculty = async (req, res) => {
 
-export default {createPost, updatePostById, getPosts, getPostsById, deletePostById, getPostsByCategory}
+        try{
+            const blog = await BlogPost.find({faculty: req.params.faculty});
+            if(blog){
+                res.status(200).json({ "fetchedPost": blog });
+            }
+
+            else{
+                res.status(400).json({
+                    "postFetchedError": "Post not found",
+                });
+            }
+
+        } 
+        
+        catch (error){
+            console.log(error);
+            res.status(500).json({
+                "status": "fail",
+                "message": error.message
+            })
+        }
+    }
+
+    const saveTestResult = async (req, res) => {
+
+        try{
+            const newTestResult = new testResultModel()
+
+            newTestResult.name = req.body.name
+            newTestResult.email = req.body.email
+            newTestResult.postTitle = req.body.postTitle
+            newTestResult.testResult = req.body.testResult
+
+            await newTestResult.save()
+            res.status(200).json({ "testResult": newTestResult });
+        } 
+        
+        catch (error){
+            console.log(error);
+            res.status(500).json({
+                "status": "fail",
+                "message": error.message
+            })
+        }
+    }
+
+    const getAllResults = async (req, res) => {
+
+        try{
+            const results = await testResultModel.find();
+
+            res.status(200).json({ "testResults": results });
+        } 
+        
+        catch (error){
+            console.log(error);
+            res.status(500).json({
+                "status": "fail",
+                "message": error.message
+            })
+        }
+    }
+
+    const deleteResultById = async (req, res) => {
+        try{
+            await testResultModel.deleteOne({_id: req.params.id});
+            res.status(200).json({ "deletedResult": "Test result deleted successfully" });
+        } 
+        
+        catch (error){
+            console.log(error);
+            res.status(500).json({
+                "status": "fail",
+                "message": error.message
+            })
+        }
+    }
+
+
+
+export default {createPost, updatePostById, getPosts, getPostsById, 
+    deletePostById, getPostsByCategory, 
+    getPostsByFaculty, saveTestResult, getAllResults, deleteResultById}
