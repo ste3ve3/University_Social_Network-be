@@ -138,6 +138,32 @@ const getAllUsers = async(request, response) =>{
     }
 }
 
+const getUserById = async (req, res) => {
+
+    try{
+        const user = await User.findOne({_id: req.params.id});
+        if(user){
+            res.status(200).json({ "fetchedUser": user });
+        }
+
+        else{
+            res.status(400).json({
+                "userFetchedError": "User not found",
+            });
+        }
+
+    }
+
+    catch (error){
+        console.log(error);
+        res.status(500).json({
+            "status": "fail",
+            "message": error.message
+        })
+    }
+
+}
+
 const assignUserRole = async(request, response) =>{
     try{
         const user = await User.findOne({_id: request.params.id});
@@ -146,7 +172,7 @@ const assignUserRole = async(request, response) =>{
 
         await user.save();
 
-        response.status(200).json({ "successMessage": `"New role ${request.body.role} was assigned to user ${user.email} successfully!` })
+        response.status(200).json({ "successMessage": `Role updated successfully!`, "role": user.role })
     }
 
     catch (error){
@@ -276,4 +302,4 @@ const updateUser3 = async(request, response) =>{
     }
 }
 
-export default {createNewUser, getAllUsers, verifyEmail, updateUser1, updateUser2, updateUser3, assignUserRole}
+export default {createNewUser, getAllUsers, verifyEmail, updateUser1, updateUser2, updateUser3, assignUserRole, getUserById}

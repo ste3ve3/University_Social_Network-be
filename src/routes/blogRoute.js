@@ -40,6 +40,9 @@ router.route('/getSinglePost/:id')
 router.route('/getPostsByCategory/:category')
     .get(blogController.getPostsByCategory)
 
+router.route('/getPostsByCategoryAndFaculty/:category/:faculty')
+    .get(blogController.getPostsByCategoryAndFaculty)
+
 router.route('/getPostsByFaculty/:faculty')
     .get(blogController.getPostsByFaculty)
 

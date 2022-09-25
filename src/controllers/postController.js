@@ -47,27 +47,21 @@ import testResultModel from "../models/resultsModel.js"
     const updatePostById = async (req, res) => {
         try{
             const blog = await BlogPost.findOne({_id: req.params.id});
-            console.log(req.file)
-            console.log(req.files)
             if(blog){
-                if(!req.files){
                 blog.title = req.body.title || blog.title,
                 blog.body = req.body.body || blog.body,
                 blog.authorName = req.body.authorName || blog.authorName,
                 blog.category = req.body.category || blog.category
-                blog.category = req.body.faculty || blog.faculty
-                }
-
-                else{
+                blog.faculty = req.body.faculty || blog.faculty
                 
+            if(req.files){
                 const postImages = `${req.protocol}://${req.get("host")}/postImages/${req.files.post[0].filename}`;
+                blog.imgLink = postImages || blog.imgLink
                 const authorImages = `${req.protocol}://${req.get("host")}/postImages/${req.files.author[0].filename}`;
-                
-                blog.imgLink = postImages || blog.imgLink,
-                blog.authorImage = authorImages || blog.authorImage  
+                blog.authorImage = authorImages || blog.authorImage                 
                 }
 
-    
+
                 await blog.save();
                 res.status(200).json({
                     "postUpdatedSuccess": "Post updated successfully",
@@ -182,6 +176,31 @@ import testResultModel from "../models/resultsModel.js"
         }
     }
 
+    const getPostsByCategoryAndFaculty = async (req, res) => {
+
+        try{
+            const blog = await BlogPost.find({category: req.params.category, faculty: req.params.faculty});
+            if(blog){
+                res.status(200).json({ "fetchedPost": blog });
+            }
+
+            else{
+                res.status(400).json({
+                    "postFetchedError": "Post not found",
+                });
+            }
+
+        } 
+        
+        catch (error){
+            console.log(error);
+            res.status(500).json({
+                "status": "fail",
+                "message": error.message
+            })
+        }
+    }
+
 
     const getPostsByFaculty = async (req, res) => {
 
@@ -267,4 +286,4 @@ import testResultModel from "../models/resultsModel.js"
 
 export default {createPost, updatePostById, getPosts, getPostsById, 
     deletePostById, getPostsByCategory, 
-    getPostsByFaculty, saveTestResult, getAllResults, deleteResultById}
+    getPostsByFaculty, saveTestResult, getAllResults, deleteResultById, getPostsByCategoryAndFaculty}

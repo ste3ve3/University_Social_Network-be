@@ -100,53 +100,6 @@ const updateUser = async(request, response) =>{
             else{
                 const ourLoggedInUser = await User.findById(decodedToken.userEmail._id) 
 
-                if(!ourLoggedInUser.isVerified){ 
-
-                // Email sender details
-                const transporter = nodemailer.createTransport({
-                    service: "gmail",
-                    auth: {
-                    user: "ndicunguyesteve4@gmail.com",
-                    pass: "qlbtvfaoozcoyvzb"
-                    },
-                    tls:{
-                    rejectUnauthorized: false
-                    }
-                })
-
-                    // Send verification email to user
-                    const mailOptions = {
-                    from: ' "Verify your email" <ndicunguyesteve4@gmail.com>',
-                    to: ourLoggedInUser.email,
-
-                    subject: "Elano Portfolio - verify your email",
-                    html: `
-                    <h2>${ourLoggedInUser.firstName} ${ourLoggedInUser.lastName} thanks for registering on our site!</h2>
-                    <h4>Please verify your email to continue...</h4>
-                    <a href="http://${request.headers.host}/login/verifyUserEmail?userToken=${ourLoggedInUser.emailToken}" style="
-                    text-decoration: none;
-                    border: 1px solid black;
-                    padding: 10px;
-                    color: black;
-                    ">Verify Email</a>
-                    `
-                    }
-
-                    // Sending the email
-                    transporter.sendMail(mailOptions, function(error, info){
-                    if(error){
-                        console.log(error)
-                    }
-
-                    else{
-                        console.log("Verification Email is Sent to your gmail account!")
-                        response.redirect(process.env.FAILURE_REDIRECT_URL)
-                    }
-                    })
-
-
-                }
-
                 if (ourLoggedInUser){
                     
                         if (!request.file) {
@@ -188,29 +141,36 @@ const updateUser = async(request, response) =>{
                         yearOfStudy: updatedUser.yearOfStudy
                     }
 
-                    if(request.body.profileFacebook == ""){
-                            ourLoggedInUser.profileFacebook = undefined;
-                            delete ourLoggedInUser.profileFacebook;
+                    if(request.body.department == ""){
+                            ourLoggedInUser.department = undefined;
+                            delete ourLoggedInUser.department;
                             await ourLoggedInUser.save()
                     }
 
-                    if(request.body.profileTwitter == ""){
-                        ourLoggedInUser.profileTwitter = undefined;
-                        delete ourLoggedInUser.profileTwitter
+                    if(request.body.regNumber == ""){
+                        ourLoggedInUser.regNumber = undefined;
+                        delete ourLoggedInUser.regNumber
                         await ourLoggedInUser.save()
                     }
 
-                    if(request.body.profileLinkedin == ""){
-                        ourLoggedInUser.profileLinkedin = undefined;
-                        delete ourLoggedInUser.profileLinkedin
+                    if(request.body.dateOfBirth == ""){
+                        ourLoggedInUser.dateOfBirth = undefined;
+                        delete ourLoggedInUser.dateOfBirth
                         await ourLoggedInUser.save()
                     }
 
-                    if(request.body.profileInstagram == ""){
-                        ourLoggedInUser.profileInstagram = undefined;
-                        delete ourLoggedInUser.profileInstagram
+                    if(request.body.phoneNumber == ""){
+                        ourLoggedInUser.phoneNumber = undefined;
+                        delete ourLoggedInUser.phoneNumber
                         await ourLoggedInUser.save()
                     }
+
+                    if(request.body.yearOfStudy == ""){
+                        ourLoggedInUser.yearOfStudy = undefined;
+                        delete ourLoggedInUser.yearOfStudy
+                        await ourLoggedInUser.save()
+                    }
+
 
                     if(request.body.bio == ""){
                         ourLoggedInUser.bio = undefined;

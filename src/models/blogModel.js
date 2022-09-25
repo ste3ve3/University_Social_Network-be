@@ -29,8 +29,7 @@ const blogSchema = mongoose.Schema({
     },
 
     testResult : {
-        type: 'string',
-        required: true,
+        type: 'string'
     },
 
     faculty : {
