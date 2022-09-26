@@ -33,7 +33,7 @@ const loginUser = async(request, response) =>{
 
         const userRole = userEmail.role;
         response.set("token", token).json({
-            "successMessage": "You are successfully logged in", "Access_Token": token, "role": userRole
+            "successMessage": "Logged in successfully!", "Access_Token": token, "role": userRole
         })
     }
 
@@ -74,6 +74,36 @@ const loggedInUser = async(request, response) =>{
         console.log(error)
         response.status(500).json({
             "status": "fail",
+            "errorMessage": error.message
+        })
+    }
+}
+
+
+const guestUser = async(request, response) =>{
+    try{
+        const userEmail = new User()
+
+        userEmail.firstName = request.body.firstName
+        userEmail.lastName = request.body.lastName
+        userEmail.email = request.body.email
+        userEmail.password = request.body.password
+        userEmail.repeatPassword = request.body.repeatPassword
+
+        await userEmail.save()        
+
+        const token = Jwt.sign({userEmail} , process.env.ACCESS_TOKEN_SECRET)
+        response.header("auth_token", token)
+
+        response.set("token", token).json({
+            "successMessage": "Logged in successfully!", "Access_Token": token
+        })
+    }
+
+    catch(error){
+        console.log(error)
+        response.status(500).json({
+            "status": "Fail",
             "errorMessage": error.message
         })
     }
@@ -355,4 +385,4 @@ const newPassword = async(request, response) =>{
     }
 }
 
-export default {loginUser, loggedInUser, updateUser, forgotPassword, resetPassword, newPassword}
+export default {loginUser, loggedInUser, updateUser, forgotPassword, resetPassword, newPassword, guestUser}

@@ -230,7 +230,9 @@ const updateUser2 = async(request, response) =>{
     try{
         const registeredEmail = sessionStorage.getItem("user_email")
         const storedEmail = await User.findOne({email: registeredEmail})
+        console.log(request.file)
         const transciptImage = request.file.filename;
+        
         const transcriptImages = `${request.protocol}://${request.get("host")}/transcriptImages/${transciptImage}`;
         
         if(storedEmail){

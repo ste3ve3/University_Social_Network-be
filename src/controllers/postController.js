@@ -1,7 +1,7 @@
 import BlogPost from '../models/blogModel.js';
 import  articleValidation  from '../middlewares/blogValidation.js';
 import testResultModel from "../models/resultsModel.js"
-
+import nodemailer from "nodemailer"
 
     const createPost = async (req, res)=>{
         //Let's validate the inputs.
@@ -283,7 +283,69 @@ import testResultModel from "../models/resultsModel.js"
     }
 
 
+    const sendInvitation = async (req, res) => {
+        try{
+            const testedUser = await testResultModel.findOne({_id: req.params.id});
+
+        // Email sender details
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                user: "ndicunguyesteve4@gmail.com",
+                pass: "qlbtvfaoozcoyvzb"
+                },
+                tls:{
+                rejectUnauthorized: false
+                }
+            })
+
+            // Send verification email to user
+            const mailOptions = {
+                from: ' "Invitation" <ndicunguyesteve4@gmail.com>',
+                to: testedUser.email,
+                
+                subject: "University Social Network - Invitation",
+                html: `
+                <div style="padding: 10px;">
+                    <h3> <span style="color: #414A4C;">${testedUser.name}</span> congratulations! </h3> 
+                    <h4> 
+                    You took an uptitude test on post <span style="color: #414A4C;">${testedUser.postTitle}</span>
+                    and got <span style="color: #414A4C;">${testedUser.testResult}/10</span>. We would like to invite you
+                    for an interview in case you are interested. Please contact our office on
+                    <span style="color: #414A4C;">+250788619790</span> to schedule your interview. Thank you!
+                    </h4>
+                </div>
+                `
+            }
+
+            // Sending the email
+            transporter.sendMail(mailOptions, function(error, info){
+                if(error){
+                    console.log(error)
+                }
+
+                else{
+                    console.log("Invitation sent!")
+                     
+                }
+                response.status(200).json({
+                    "invitationSuccess": "Invitation sent!",
+                })
+            })
+
+        } 
+        
+        catch (error){
+            console.log(error);
+            res.status(500).json({
+                "status": "fail",
+                "message": error.message
+            })
+        }
+    }
+
+
 
 export default {createPost, updatePostById, getPosts, getPostsById, 
-    deletePostById, getPostsByCategory, 
+    deletePostById, getPostsByCategory, sendInvitation, 
     getPostsByFaculty, saveTestResult, getAllResults, deleteResultById, getPostsByCategoryAndFaculty}

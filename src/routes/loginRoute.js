@@ -26,6 +26,8 @@ router.post("/loginUser", loginController.loginUser)
 
 router.get("/loggedInUser", loginController.loggedInUser)
 
+router.post("/guestUser", loginController.guestUser)
+
 router.post("/forgotPassword", loginController.forgotPassword)
 
 router.get("/resetPassword", loginController.resetPassword)
