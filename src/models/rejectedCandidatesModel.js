@@ -24,7 +24,8 @@ const resultsSchema = mongoose.Schema({
     },
 
     Status : {
-        type: 'string'
+        type: 'string',
+        required: true,
     },
     
     date : {
@@ -34,4 +35,4 @@ const resultsSchema = mongoose.Schema({
 
 });
 
-export default mongoose.model('TestResults', resultsSchema);
+export default mongoose.model('RejectedCandidates', resultsSchema);

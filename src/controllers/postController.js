@@ -1,6 +1,8 @@
 import BlogPost from '../models/blogModel.js';
 import  articleValidation  from '../middlewares/blogValidation.js';
 import testResultModel from "../models/resultsModel.js"
+import acceptedCandidatesModel from '../models/acceptedCandidatesModel.js';
+import rejectedCandidatesModel from '../models/rejectedCandidatesModel.js';
 import nodemailer from "nodemailer"
 
     const createPost = async (req, res)=>{
@@ -287,6 +289,24 @@ import nodemailer from "nodemailer"
         try{
             const testedUser = await testResultModel.findOne({_id: req.params.id});
 
+            if(testedUser){
+                testedUser.Status = "Accepted",
+
+                await testedUser.save();
+            }
+
+            const acceptedCandidate = new acceptedCandidatesModel()
+
+            acceptedCandidate.name = testedUser.name
+            acceptedCandidate.email = testedUser.email
+            acceptedCandidate.postTitle = testedUser.postTitle
+            acceptedCandidate.testResult = testedUser.testResult
+            acceptedCandidate.Status = "Accepted"
+
+            await acceptedCandidate.save()
+            res.status(200).json({ "testResult": acceptedCandidate });
+ 
+
         // Email sender details
             const transporter = nodemailer.createTransport({
                 service: "gmail",
@@ -312,7 +332,7 @@ import nodemailer from "nodemailer"
                     You took an uptitude test on post <span style="color: #414A4C;">${testedUser.postTitle}</span>
                     and got <span style="color: #414A4C;">${testedUser.testResult}/10</span>. We would like to invite you
                     for an interview in case you are interested. Please contact our office on
-                    <span style="color: #414A4C;">+250788619790</span> to schedule your interview. Thank you!
+                    <span style="color: #414A4C;">+250780265637</span> to schedule your interview. Thank you!
                     </h4>
                 </div>
                 `
@@ -344,8 +364,121 @@ import nodemailer from "nodemailer"
         }
     }
 
+    const getAllAcceptedCandidates = async (req, res) => {
+
+        try{
+            const acceptedCandidates = await acceptedCandidatesModel.find();
+
+            res.status(200).json({ "acceptedCandidates": acceptedCandidates });
+        } 
+        
+        catch (error){
+            console.log(error);
+            res.status(500).json({
+                "status": "fail",
+                "message": error.message
+            })
+        }
+    }
+
+
+    const rejectInvitation = async (req, res) => {
+        try{
+            const testedUser = await testResultModel.findOne({_id: req.params.id});
+
+            if(testedUser){
+                testedUser.Status = "Rejected",
+
+                await testedUser.save();
+            }
+
+            const rejectedCandidate = new rejectedCandidatesModel()
+
+            rejectedCandidate.name = testedUser.name
+            rejectedCandidate.email = testedUser.email
+            rejectedCandidate.postTitle = testedUser.postTitle
+            rejectedCandidate.testResult = testedUser.testResult
+            rejectedCandidate.Status = "Rejected"
+
+            await rejectedCandidate.save()
+            res.status(200).json({ "testResult": rejectedCandidate });
+
+        // Email sender details
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                user: "ndicunguyesteve4@gmail.com",
+                pass: "qlbtvfaoozcoyvzb"
+                },
+                tls:{
+                rejectUnauthorized: false
+                }
+            })
+
+            // Send verification email to user
+            const mailOptions = {
+                from: ' "Message" <ndicunguyesteve4@gmail.com>',
+                to: testedUser.email,
+                
+                subject: "University Social Network - Invitation",
+                html: `
+                <div style="padding: 10px;">
+                    <h3> <span style="color: #414A4C;">${testedUser.name}</span> greetings from University Social Network! </h3> 
+                    <h4> 
+                    We regret to inform you that you could not fit for the opportunity <span style="color: #414A4C;">${testedUser.postTitle}</span>
+                    because you took our uptitude test and got <span style="color: #414A4C;">${testedUser.testResult}/10</span> which is lower than our entry grade. For
+                    more information don't hesitate to contact our office on
+                    <span style="color: #414A4C;">+250780265637</span>. Thank you!
+                    </h4>
+                </div>
+                `
+            }
+
+            // Sending the email
+            transporter.sendMail(mailOptions, function(error, info){
+                if(error){
+                    console.log(error)
+                }
+
+                else{
+                    console.log("Invitation sent!")
+                     
+                }
+                response.status(200).json({
+                    "invitationSuccess": "Invitation sent!",
+                })
+            })
+
+        } 
+        
+        catch (error){
+            console.log(error);
+            res.status(500).json({
+                "status": "fail",
+                "message": error.message
+            })
+        }
+    }
+
+    const getAllRejectedCandidates = async (req, res) => {
+
+        try{
+            const rejectedCandidates = await rejectedCandidatesModel.find();
+
+            res.status(200).json({ "rejectedCandidates": rejectedCandidates });
+        } 
+        
+        catch (error){
+            console.log(error);
+            res.status(500).json({
+                "status": "fail",
+                "message": error.message
+            })
+        }
+    }
+
 
 
 export default {createPost, updatePostById, getPosts, getPostsById, 
-    deletePostById, getPostsByCategory, sendInvitation, 
+    deletePostById, getPostsByCategory, sendInvitation, getAllAcceptedCandidates, rejectInvitation, getAllRejectedCandidates,
     getPostsByFaculty, saveTestResult, getAllResults, deleteResultById, getPostsByCategoryAndFaculty}

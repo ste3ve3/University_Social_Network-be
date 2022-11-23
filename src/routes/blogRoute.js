@@ -38,7 +38,16 @@ router.route('/getSinglePost/:id')
     .get(blogController.getPostsById)
 
 router.route('/sendInvitation/:id')
-    .get(blogController.sendInvitation)
+    .post(blogController.sendInvitation)
+
+router.route('/getAllAcceptedCandidates')
+    .get(blogController.getAllAcceptedCandidates)
+
+router.route('/rejectInvitation/:id')
+    .post(blogController.rejectInvitation)
+
+router.route('/getAllRejectedCandidates')
+    .get(blogController.getAllRejectedCandidates)
 
 router.route('/getPostsByCategory/:category')
     .get(blogController.getPostsByCategory)
