@@ -23,6 +23,11 @@ const resultsSchema = mongoose.Schema({
         required: true,
     },
 
+    faculty : {
+        type: 'string',
+        required: true,
+    },
+
     Status : {
         type: 'string'
     },

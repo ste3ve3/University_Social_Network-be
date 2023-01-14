@@ -238,6 +238,7 @@ import nodemailer from "nodemailer"
             newTestResult.email = req.body.email
             newTestResult.postTitle = req.body.postTitle
             newTestResult.testResult = req.body.testResult
+            newTestResult.faculty = req.body.faculty
 
             await newTestResult.save()
             res.status(200).json({ "testResult": newTestResult });
